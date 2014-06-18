@@ -1,0 +1,114 @@
+/*
+	@bootstrap Buttons
+
+	@usage
+		##### Sizes
+		You can change the size of your buttons between default, small and large.
+
+		```html
+		<button class="btn large">Large</button>
+		<button class="btn">Default</button>
+		<button class="btn small">Small</button>
+		```
+	
+	@usage
+		##### Shapes
+		You can change the shape of your buttons between default, square, round and pill.
+
+		```html
+		<button class="btn">Default</button>
+		<button class="btn square">SQ</button>
+		<button class="btn round">Round</button>
+		<button class="btn lozenge">Lozenge</button>
+		```
+	
+	@usage
+		##### Colors
+		You can change the color of your buttons between default and secondary.
+
+		```html
+		<button class="btn">Default</button>
+		<button class="btn secondary">Secondary</button>
+		```
+*/
+
+
+/////////////////////////////////////////////////////////////////////////
+// STYLE
+/////////////////////////////////////////////////////////////////////////
+
+.btn
+	inline-block()
+	font-weight: bold
+	font-step: 0
+	vertical-space: 0, 1
+	text-align: center
+	padding: 0 ceil(LINE_HEIGHT / 2)
+	height: LINE_HEIGHT * 2
+	line-height: LINE_HEIGHT * 2
+	min-width: LINE_HEIGHT * 2
+	cursor: pointer
+	background: COLOR_PRIMARY_BACKGROUND
+	color: COLOR_PRIMARY_FONT
+	border: none
+	vertical-align: top
+
+	&.secondary
+		background: COLOR_SECONDARY_BACKGROUND
+		color: COLOR_SECONDARY_FONT
+
+	// Squared size
+	&.square
+		padding: 0
+		width: LINE_HEIGHT * 2
+
+	// Rounded style
+	&.round
+		padding: 0
+		width: LINE_HEIGHT * 2
+		border-radius: 100%
+
+	// Pill style
+	&.lozenge
+		border-radius: LINE_HEIGHT
+
+	// Large size
+	&.large
+		font-step: 1
+		height: LINE_HEIGHT * 3
+		line-height: LINE_HEIGHT * 3
+		padding: 0 ceil(LINE_HEIGHT)
+
+		&.square
+			padding: 0
+			width: LINE_HEIGHT * 3
+
+		&.lozenge
+			border-radius: ((LINE_HEIGHT * 3) / 2)
+
+	// Large size
+	&.small
+		font-step: -1
+		height: LINE_HEIGHT
+		line-height: LINE_HEIGHT
+		padding: 0 ceil(LINE_HEIGHT)
+
+		&.square
+			padding: 0
+			width: LINE_HEIGHT * 3
+
+		&.lozenge
+			border-radius: ((LINE_HEIGHT * 3) / 2)
+
+	// Block (100% width)
+	&.block
+		display: block
+
+	// Hover Actions
+	&:hover, &:active
+		background: lighten(COLOR_PRIMARY_BACKGROUND, 20%)
+
+		&.secondary
+			background: darken(COLOR_SECONDARY_BACKGROUND, 20%)
+
+	transition: color .2s ease, background-color .2s ease
