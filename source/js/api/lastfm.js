@@ -18,12 +18,9 @@ LastFM = (function() {
     });
   };
 
-  LastFM.eventsByLatLng = function(lat, lng, callback) {
+  LastFM.eventsByLatLng = function(params, callback) {
     var request;
-    request = this._requestURL('geo.getevents', {
-      lat: lat,
-      long: lng
-    });
+    request = this._requestURL('geo.getevents', params);
     return this._get(request, function(data) {
       return callback(data.events.event);
     });

@@ -55,12 +55,14 @@ define(function() {
         return;
       }
       position = this._panorama.getPosition();
-      if (!position) {
+      pov = this._panorama.getPov();
+      if (!position || !pov) {
         return;
       }
+      this.onUpdate(position, pov.heading);
+      return;
       distance = google.maps.geometry.spherical.computeDistanceBetween(position, this._destination);
       destinationHeading = google.maps.geometry.spherical.computeHeading(position, this._destination);
-      pov = this._panorama.getPov();
       heading = fixAngle(pov.heading - destinationHeading);
       pitch = pov.pitch;
       return this.onUpdate(distance, heading, position, pov.heading);

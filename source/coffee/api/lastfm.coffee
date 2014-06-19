@@ -10,8 +10,8 @@ class LastFM
 			console.log data
 			callback(data.events.event)
 
-	@eventsByLatLng: (lat, lng, callback) ->
-		request = @_requestURL('geo.getevents',{lat:lat,long:lng})
+	@eventsByLatLng: (params, callback) ->
+		request = @_requestURL('geo.getevents', params)
 
 		@_get request, (data) ->
 			callback(data.events.event)

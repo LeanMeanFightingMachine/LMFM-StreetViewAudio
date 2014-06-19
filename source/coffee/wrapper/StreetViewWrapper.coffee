@@ -54,15 +54,17 @@ define ->
 				return
 
 			position = @_panorama.getPosition()
+			pov = @_panorama.getPov()
 
-			if not position
+			if not position or not pov
 				return
+
+			@onUpdate(position, pov.heading)
+			return
 
 			distance = google.maps.geometry.spherical.computeDistanceBetween(position, @_destination)
 
 			destinationHeading = google.maps.geometry.spherical.computeHeading(position, @_destination)
-
-			pov = @_panorama.getPov()
 
 			heading = fixAngle(pov.heading - destinationHeading)
 			pitch = pov.pitch

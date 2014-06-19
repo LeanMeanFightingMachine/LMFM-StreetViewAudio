@@ -19,7 +19,13 @@ define(function() {
       this.srcElement = new Audio;
       this.srcElement.loop = true;
       this.srcElement.src = src;
-      this._createNodes();
+      this.srcElement.preload = "auto";
+      this.srcElement.addEventListener('canplaythrough', (function(_this) {
+        return function() {
+          return _this.srcElement.play();
+        };
+      })(this));
+      this._setupNodes();
     }
 
     Sound.prototype.start = function() {};
@@ -31,16 +37,14 @@ define(function() {
     				CONFIG AUDIO
      */
 
-    Sound.prototype.setDistanceAndHeading = function(distance, heading, normalizedHeading) {
-      this._updateFilter(normalizedHeading);
-      this._updateGain(normalizedHeading);
+    Sound.prototype.setDistanceAndHeading = function(distance, heading) {
       return this._updatePanner(heading, distance);
     };
 
     Sound.prototype._updateFilter = function(normalizedHeading) {
       var filterFreq;
       filterFreq = 44000 - (41500 * normalizedHeading);
-      return this.filter.frequency.value = masterFilterFreq;
+      return this.filter.frequency.value = filterFreq;
     };
 
     Sound.prototype._updateGain = function(normalizedHeading) {
@@ -59,19 +63,23 @@ define(function() {
       return this.panner.setPosition(-x, y, z);
     };
 
-    Sound.prototype._createNodes = function() {
+    Sound.prototype._setupNodes = function() {
+      this.sourceNode = AUDIO_CONTEXT.createMediaElementSource(this.srcElement);
       this.filter = AUDIO_CONTEXT.createBiquadFilter();
       this.filter.frequency.value = 44000;
       this.filter.type = "lowpass";
       this.panner = AUDIO_CONTEXT.createPanner();
+      this.panner.distanceModel = "exponential";
+      this.panner.refDistance = 50;
+      this.panner.rolloffFactor = 1.2;
       this.gain = AUDIO_CONTEXT.createGain();
       this.gain.channelCount = 1;
-      return this.gain.gain.value = this.VOLUME;
+      this.gain.gain.value = this.VOLUME;
+      return this._routeNodes();
     };
 
     Sound.prototype._routeNodes = function() {
-      this.filter.connect(this.gain);
-      this.gain.connect(this.panner);
+      this.sourceNode.connect(this.panner);
       return this.panner.connect(AUDIO_CONTEXT.destination);
     };
 

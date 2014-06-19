@@ -20,11 +20,16 @@ define ->
 			@srcElement = new Audio
 			@srcElement.loop = true
 			@srcElement.src = src
+			@srcElement.preload = "auto"
 
-			@_createNodes()
+			@srcElement.addEventListener 'canplaythrough', =>
+				@srcElement.play()
+
+			@_setupNodes()
 
 		start: () ->
 			# start the sounds here
+			#console.log @source
 
 		stop: () ->
 			# stop the sounds here
@@ -34,7 +39,7 @@ define ->
 				CONFIG AUDIO
 		###
 
-		setDistanceAndHeading: (distance, heading, normalizedHeading) ->
+		setDistanceAndHeading: (distance, heading) ->
 
 			# For mobile webkit, we'll trigger the audio cue when street view has been interacted with
 			# Providing: the audio buffer exists, hasnt already been started and we on mobile webkit
@@ -42,13 +47,13 @@ define ->
 				#@sourceCue.hasStarted = true
 				#@sourceCue.start(0) if @ACTIVE
 
-			@_updateFilter(normalizedHeading)
-			@_updateGain(normalizedHeading)
+			#@_updateFilter(normalizedHeading)
+			#@_updateGain(normalizedHeading)
 			@_updatePanner(heading, distance)
 
 		_updateFilter: (normalizedHeading) ->
 			filterFreq = 44000 - (41500 * normalizedHeading)
-			@filter.frequency.value = masterFilterFreq
+			@filter.frequency.value = filterFreq
 
 		_updateGain: (normalizedHeading) ->
 			volume = if @MUTED then 0 else @VOLUME
@@ -64,22 +69,29 @@ define ->
 
 			@panner.setPosition(-x, y, z)
 
-		_createNodes: ->
+		_setupNodes: ->
+			@sourceNode = AUDIO_CONTEXT.createMediaElementSource(@srcElement)
 
 			@filter = AUDIO_CONTEXT.createBiquadFilter()
 			@filter.frequency.value = 44000
 			@filter.type = "lowpass"
 
 			@panner = AUDIO_CONTEXT.createPanner()
+			@panner.distanceModel = "exponential"
+			@panner.refDistance = 50
+			@panner.rolloffFactor = 1.2
 
 			@gain = AUDIO_CONTEXT.createGain()
 			@gain.channelCount = 1
 			@gain.gain.value = @VOLUME
 
+			@_routeNodes()
+
 
 		# Route web audio nodes
 		_routeNodes: ->
-			@filter.connect(@gain)
-			@gain.connect(@panner)
+			@sourceNode.connect(@panner)
+			#@filter.connect(@gain)
+			#@gain.connect(@panner)
 			@panner.connect(AUDIO_CONTEXT.destination)
 
