@@ -16,26 +16,21 @@ define(function() {
     Sound.prototype.VOLUME = 4;
 
     function Sound(src) {
-      this.srcElement = new Audio;
-      this.srcElement.loop = true;
-      this.srcElement.src = src;
-      this.srcElement.preload = "auto";
-      this.srcElement.addEventListener('canplaythrough', (function(_this) {
-        return function() {
-          return _this.srcElement.play();
-        };
-      })(this));
+      this.audio = new Audio;
+      this.audio.autoplay = false;
+      this.audio.loop = true;
+      this.audio.src = src;
+      this.audio.preload = "auto";
       this._setupNodes();
     }
 
-    Sound.prototype.start = function() {};
+    Sound.prototype.start = function() {
+      if (!!this.audio.paused) {
+        return this.audio.play();
+      }
+    };
 
     Sound.prototype.stop = function() {};
-
-
-    /*
-    				CONFIG AUDIO
-     */
 
     Sound.prototype.setDistanceAndHeading = function(distance, heading) {
       return this._updatePanner(heading, distance);
@@ -64,7 +59,7 @@ define(function() {
     };
 
     Sound.prototype._setupNodes = function() {
-      this.sourceNode = AUDIO_CONTEXT.createMediaElementSource(this.srcElement);
+      this.sourceNode = AUDIO_CONTEXT.createMediaElementSource(this.audio);
       this.filter = AUDIO_CONTEXT.createBiquadFilter();
       this.filter.frequency.value = 44000;
       this.filter.type = "lowpass";

@@ -4,7 +4,7 @@ define(function(require) {
   async = require("../vendor/async");
   lastFM = require("api/lastfm");
   Deezer = require("api/deezer");
-  StreetViewWrapper = require("wrapper/StreetViewWrapper");
+  StreetViewWrapper = require("streetView/StreetViewWrapper");
   Sound = require("audio/Sound");
   start = {
     lat: 50.82104,
@@ -80,7 +80,7 @@ define(function(require) {
           return LastFM.eventsByLatLng({
             lat: start.lat,
             long: start.long,
-            distance: 1,
+            distance: 2,
             limit: 5
           }, function(eventData) {
             var event, sourceData, _i, _len;

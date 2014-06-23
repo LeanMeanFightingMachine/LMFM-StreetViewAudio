@@ -17,27 +17,20 @@ define ->
 		VOLUME: 4
 
 		constructor: (src) ->
-			@srcElement = new Audio
-			@srcElement.loop = true
-			@srcElement.src = src
-			@srcElement.preload = "auto"
-
-			@srcElement.addEventListener 'canplaythrough', =>
-				@srcElement.play()
+			@audio = new Audio
+			@audio.autoplay = false
+			@audio.loop = true
+			@audio.src = src
+			@audio.preload = "auto"
 
 			@_setupNodes()
 
 		start: () ->
 			# start the sounds here
-			#console.log @source
+			@audio.play() unless !@audio.paused
 
 		stop: () ->
 			# stop the sounds here
-
-
-		###
-				CONFIG AUDIO
-		###
 
 		setDistanceAndHeading: (distance, heading) ->
 
@@ -70,7 +63,7 @@ define ->
 			@panner.setPosition(-x, y, z)
 
 		_setupNodes: ->
-			@sourceNode = AUDIO_CONTEXT.createMediaElementSource(@srcElement)
+			@sourceNode = AUDIO_CONTEXT.createMediaElementSource(@audio)
 
 			@filter = AUDIO_CONTEXT.createBiquadFilter()
 			@filter.frequency.value = 44000
@@ -86,7 +79,6 @@ define ->
 			@gain.gain.value = @VOLUME
 
 			@_routeNodes()
-
 
 		# Route web audio nodes
 		_routeNodes: ->

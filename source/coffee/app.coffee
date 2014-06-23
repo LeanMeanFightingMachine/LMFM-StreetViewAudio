@@ -5,7 +5,7 @@ define (require) ->
 	async = require("../vendor/async")
 	lastFM = require("api/lastfm")
 	Deezer = require("api/deezer")
-	StreetViewWrapper = require("wrapper/StreetViewWrapper")
+	StreetViewWrapper = require("streetView/StreetViewWrapper")
 	Sound = require("audio/Sound")
 
 	# GUMF
@@ -74,7 +74,7 @@ define (require) ->
 				(callback) ->
 					events = []
 
-					LastFM.eventsByLatLng {lat:start.lat, long:start.long, distance:1, limit: 5}, (eventData) ->
+					LastFM.eventsByLatLng {lat:start.lat, long:start.long, distance:2, limit: 5}, (eventData) ->
 						for event in eventData
 							sourceData = {}
 							sourceData.venue = event.venue
