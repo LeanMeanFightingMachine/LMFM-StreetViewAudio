@@ -6,6 +6,7 @@ define (require) ->
 	lastFM = require("api/lastfm")
 	Deezer = require("api/deezer")
 	StreetViewWrapper = require("streetView/StreetViewWrapper")
+	StreetViewMarker = require("streetView/StreetViewMarker")
 	Sound = require("audio/Sound")
 
 	# GUMF
@@ -54,19 +55,17 @@ define (require) ->
 				headingToSource = google.maps.geometry.spherical.computeHeading(position, source.location)
 				normalizedHeading = fixAngle(heading - headingToSource)
 				distance = google.maps.geometry.spherical.computeDistanceBetween(position, source.location)
-				source.Sound?.setDistanceAndHeading distance, normalizedHeading
-				source.Sound?.start()
-
-
+				source.sound?.setDistanceAndHeading distance, normalizedHeading
+				source.sound?.start()
 
 		_dataLoaded: (data) ->
 			sources = data
 			for source in sources
-				source.Sound = new Sound(source.audio)
-				console.log source.venue.name
+				source.sound = new Sound(source.audio)
+				source.marker = new StreetViewMarker(@streetView.panorama, source)
+				console.log source.venue.name ,source
 
 			@streetView.enabled = true
-
 
 		_loadEvents: () ->
 			async.waterfall([
@@ -80,7 +79,6 @@ define (require) ->
 							sourceData.venue = event.venue
 							sourceData.location = new google.maps.LatLng(event.venue.location["geo:point"]["geo:lat"], event.venue.location["geo:point"]["geo:long"])
 							sourceData.artist = event.artists.headliner
-
 							events.push sourceData
 						callback null, events
 

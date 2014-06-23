@@ -15,14 +15,14 @@ define(function() {
     function StreetViewWrapper() {
       this.enabled = false;
       this._customPanoramas = {};
-      this._panorama = null;
+      this.panorama = null;
       this._originalDestination = null;
       this._destination = null;
       this._isInEndPosition = false;
     }
 
     StreetViewWrapper.prototype.initialise = function(el) {
-      this._panorama = new google.maps.StreetViewPanorama(el);
+      this.panorama = new google.maps.StreetViewPanorama(el);
       return this._addEventListeners();
     };
 
@@ -33,16 +33,16 @@ define(function() {
     };
 
     StreetViewWrapper.prototype.setPosition = function(position) {
-      return this._panorama.setPosition(position);
+      return this.panorama.setPosition(position);
     };
 
     StreetViewWrapper.prototype._addEventListeners = function() {
-      google.maps.event.addListener(this._panorama, "position_changed", (function(_this) {
+      google.maps.event.addListener(this.panorama, "position_changed", (function(_this) {
         return function() {
           return _this._update();
         };
       })(this));
-      return google.maps.event.addListener(this._panorama, "pov_changed", (function(_this) {
+      return google.maps.event.addListener(this.panorama, "pov_changed", (function(_this) {
         return function() {
           return _this._update();
         };
@@ -54,8 +54,8 @@ define(function() {
       if (!this.enabled) {
         return;
       }
-      position = this._panorama.getPosition();
-      pov = this._panorama.getPov();
+      position = this.panorama.getPosition();
+      pov = this.panorama.getPov();
       if (!position || !pov) {
         return;
       }

@@ -23,13 +23,13 @@ define ->
 
 			@_customPanoramas = {}
 
-			@_panorama = null
+			@panorama = null
 			@_originalDestination = null
 			@_destination = null
 			@_isInEndPosition = false
 
 		initialise: (el) ->
-			@_panorama = new google.maps.StreetViewPanorama(el)
+			@panorama = new google.maps.StreetViewPanorama(el)
 
 			@_addEventListeners()
 
@@ -38,14 +38,14 @@ define ->
 			@setPosition(position)
 
 		setPosition: (position) ->
-			@_panorama.setPosition(position)
+			@panorama.setPosition(position)
 
 		_addEventListeners: () ->
-			google.maps.event.addListener(@_panorama, "position_changed", =>
+			google.maps.event.addListener(@panorama, "position_changed", =>
 				@_update()
 			)
 
-			google.maps.event.addListener(@_panorama, "pov_changed", =>
+			google.maps.event.addListener(@panorama, "pov_changed", =>
 				@_update()
 			)
 
@@ -53,8 +53,8 @@ define ->
 			if not @enabled
 				return
 
-			position = @_panorama.getPosition()
-			pov = @_panorama.getPov()
+			position = @panorama.getPosition()
+			pov = @panorama.getPov()
 
 			if not position or not pov
 				return

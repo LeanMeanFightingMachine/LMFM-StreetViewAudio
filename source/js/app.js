@@ -1,10 +1,11 @@
 define(function(require) {
-  var App, Deezer, Sound, StreetViewWrapper, async, elements, fixAngle, lastFM, onGoogleMapsReady, sources, start;
+  var App, Deezer, Sound, StreetViewMarker, StreetViewWrapper, async, elements, fixAngle, lastFM, onGoogleMapsReady, sources, start;
   onGoogleMapsReady = require("util/onGoogleMapsReady");
   async = require("../vendor/async");
   lastFM = require("api/lastfm");
   Deezer = require("api/deezer");
   StreetViewWrapper = require("streetView/StreetViewWrapper");
+  StreetViewMarker = require("streetView/StreetViewMarker");
   Sound = require("audio/Sound");
   start = {
     lat: 50.82104,
@@ -53,10 +54,10 @@ define(function(require) {
         headingToSource = google.maps.geometry.spherical.computeHeading(position, source.location);
         normalizedHeading = fixAngle(heading - headingToSource);
         distance = google.maps.geometry.spherical.computeDistanceBetween(position, source.location);
-        if ((_ref = source.Sound) != null) {
+        if ((_ref = source.sound) != null) {
           _ref.setDistanceAndHeading(distance, normalizedHeading);
         }
-        _results.push((_ref1 = source.Sound) != null ? _ref1.start() : void 0);
+        _results.push((_ref1 = source.sound) != null ? _ref1.start() : void 0);
       }
       return _results;
     };
@@ -66,8 +67,9 @@ define(function(require) {
       sources = data;
       for (_i = 0, _len = sources.length; _i < _len; _i++) {
         source = sources[_i];
-        source.Sound = new Sound(source.audio);
-        console.log(source.venue.name);
+        source.sound = new Sound(source.audio);
+        source.marker = new StreetViewMarker(this.streetView.panorama, source);
+        console.log(source.venue.name, source);
       }
       return this.streetView.enabled = true;
     };
