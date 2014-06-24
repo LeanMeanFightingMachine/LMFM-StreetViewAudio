@@ -32,5 +32,3 @@ define () ->
 				url += "#{key}=#{val}"
 
 			return url += "&output=jsonp&callback=?"
-
-	return Deezer
