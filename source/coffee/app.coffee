@@ -3,7 +3,7 @@ define (require) ->
 	onGoogleMapsReady = require("util/onGoogleMapsReady")
 
 	async = require("../vendor/async")
-	lastFM = require("api/lastfm")
+	LastFM = require("api/LastFM")
 	Deezer = require("api/deezer")
 	StreetViewWrapper = require("streetView/StreetViewWrapper")
 	StreetViewMarker = require("streetView/StreetViewMarker")
