@@ -86,4 +86,3 @@ define ->
 			#@filter.connect(@gain)
 			#@gain.connect(@panner)
 			@panner.connect(AUDIO_CONTEXT.destination)
-

@@ -14,7 +14,14 @@ define () ->
 			request = @_requestURL('geo.getevents', params)
 
 			@_get request, (data) ->
-				callback(data.events.event)
+				if not data.events
+					console.log("no lastfm events here")
+
+					callback([])
+				else
+					console.log("events data", data)
+
+					callback(data.events.event)
 
 		_get: (url, callback) ->
 			req = new XMLHttpRequest()

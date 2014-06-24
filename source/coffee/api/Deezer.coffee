@@ -10,6 +10,8 @@ define () ->
 			#request = @_requestURL('search/artist',{q:artist})
 
 			$.getJSON(request, (data) ->
+				console.log("deezer data", data)
+
 				for artistObj in data.data
 					if artistObj.artist.name.toUpperCase() is artist.toUpperCase()
 						callback(artistObj)

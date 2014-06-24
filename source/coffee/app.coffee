@@ -5,17 +5,18 @@ define (require) ->
 	async = require("../vendor/async")
 	LastFM = require("api/LastFM")
 	Deezer = require("api/deezer")
+	Map = require("map/Map")
 	StreetViewWrapper = require("streetView/StreetViewWrapper")
 	StreetViewMarker = require("streetView/StreetViewMarker")
 	Sound = require("audio/Sound")
 
-	# GUMF
-	start =
+	# start map at Brighton
+	mapStartPosition =
 		lat: 50.82104
-		long: -0.1356339
+		lng: -0.1356339
 
 	elements =
-		streetView: document.querySelectorAll('.streetView')[0]
+		map: document.querySelector(".map")
 
 	sources = []
 
@@ -38,14 +39,19 @@ define (require) ->
 	class App
 
 		constructor: ->
-			console.log "Hello World :)"
+			@map = new Map()
 			@streetView = new StreetViewWrapper()
 
+			@map.onStreetViewOpened = (latLng) =>
+				@_loadEvents(latLng)
+
+			@streetView.onUpdate = @_update
+
 			onGoogleMapsReady( =>
-				@streetView.initialise(elements.streetView)
-				@streetView.setLatLong(start.lat, start.long)
-				@streetView.onUpdate = @_update
-				@_loadEvents()
+				@map.initialise(elements.map, 11)
+				@map.setCenter(mapStartPosition)
+
+				@streetView.initialise(@map.streetView)
 			)
 
 		_update: (position, heading) ->
@@ -60,26 +66,29 @@ define (require) ->
 
 		_dataLoaded: (data) ->
 			sources = data
+
 			for source in sources
 				source.sound = new Sound(source.audio)
-				source.marker = new StreetViewMarker(@streetView.panorama, source)
-				console.log source.venue.name ,source
+				source.marker = new StreetViewMarker(@map.streetView, source)
+
+				console.log source.venue.name, source
 
 			@streetView.enabled = true
 
-		_loadEvents: () ->
+		_loadEvents: (latLng) ->
 			async.waterfall([
 
 				(callback) ->
 					events = []
 
-					LastFM.eventsByLatLng {lat:start.lat, long:start.long, distance:2, limit: 5}, (eventData) ->
+					LastFM.eventsByLatLng {lat:latLng.lat(), long:latLng.lng(), distance:2, limit: 5}, (eventData) ->
 						for event in eventData
 							sourceData = {}
 							sourceData.venue = event.venue
 							sourceData.location = new google.maps.LatLng(event.venue.location["geo:point"]["geo:lat"], event.venue.location["geo:point"]["geo:long"])
 							sourceData.artist = event.artists.headliner
 							events.push sourceData
+
 						callback null, events
 
 				(events, callback) ->
