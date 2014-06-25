@@ -50,6 +50,7 @@ define (require) ->
 			@domElementsOverlay = null
 
 			@sources = []
+			@sourcesByLatLng = {}
 
 			elements.streetViewBackground.addEventListener("click", (event) =>
 				if event.target == event.currentTarget
@@ -71,6 +72,8 @@ define (require) ->
 						@domElementsOverlay.remove(source.overlayElement)
 
 						@sources.splice(i, 1)
+
+						@sourcesByLatLng[latLng] = false
 
 				@_loadEvents(latLng)
 
@@ -123,21 +126,21 @@ define (require) ->
 			@streetView.enabled = true
 
 		_loadEvents: (latLng) ->
+			sourcesByLatLng = @sourcesByLatLng
+
 			async.waterfall([
 
 				(callback) ->
 					events = []
 
 					LastFM.eventsByLatLng {lat:latLng.lat(), long:latLng.lng(), distance:config.distance, limit: config.lastFMResultsMax}, (eventData) ->
-						sourceDataByLatLng = {}
-
 						for event in eventData
 							latLng = new google.maps.LatLng(event.venue.location["geo:point"]["geo:lat"], event.venue.location["geo:point"]["geo:long"])
 
-							if sourceDataByLatLng[latLng]
+							if sourcesByLatLng[latLng]
 								continue
 
-							sourceDataByLatLng[latLng] = true
+							sourcesByLatLng[latLng] = true
 
 							sourceData = {}
 							sourceData.lastFMEventData = event
