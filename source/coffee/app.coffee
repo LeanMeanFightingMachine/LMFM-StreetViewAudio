@@ -6,8 +6,9 @@ define (require) ->
 	LastFM = require("api/LastFM")
 	Deezer = require("api/Deezer")
 	Map = require("map/Map")
+	getDOMElementsOverlayClass = require("overlay/getDOMElementsOverlayClass")
 	StreetViewWrapper = require("streetView/StreetViewWrapper")
-	StreetViewMarker = require("streetView/StreetViewMarker")
+	createInfoWindow = require("streetView/createInfoWindow")
 	Sound = require("audio/Sound")
 
 	# start map at Brighton
@@ -41,6 +42,9 @@ define (require) ->
 		constructor: ->
 			@map = new Map()
 			@streetView = new StreetViewWrapper()
+
+			@domElementsOverlay = null
+
 			@sources = []
 
 			elements.streetViewBackground.addEventListener("click", (event) =>
@@ -55,11 +59,12 @@ define (require) ->
 				for i in [@sources.length - 1..0] by -1
 					source = @sources[i]
 
-					distance = google.maps.geometry.spherical.computeDistanceBetween(latLng, source.marker.position)
+					distance = google.maps.geometry.spherical.computeDistanceBetween(latLng, source.location)
 
 					if distance > 6000
-						source.sound.remove()
-						source.marker.remove()
+						source.infoWindow.close()
+
+						@domElementsOverlay.remove(source.overlayElement)
 
 						@sources.splice(i, 1)
 
@@ -82,8 +87,11 @@ define (require) ->
 				@map.initialise(elements.map, 11)
 				@map.setCenter(mapStartPosition)
 
+				@domElementsOverlay = new (getDOMElementsOverlayClass())("last-fm-markers")
+				@domElementsOverlay.setMap(@map.map)
+
 				@streetView.initialise(elements.streetView)
-				@map._map.setStreetView(@streetView.panorama)
+				@map.map.setStreetView(@streetView.panorama)
 			)
 
 		_updateSounds: (position, heading) ->
@@ -100,7 +108,11 @@ define (require) ->
 
 			for source in sources
 				source.sound = new Sound(source.deezerArtistData.preview)
-				source.marker = new StreetViewMarker(@streetView.panorama, @map._map, source)
+				source.infoWindow = createInfoWindow(@streetView.panorama, source)
+				source.overlayElement = document.createElement("div")
+				source.overlayElement.className = "last-fm-marker"
+
+				@domElementsOverlay.add(source.overlayElement, source.location)
 
 			@sources.push.apply(@sources, sources)
 
