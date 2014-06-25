@@ -1,16 +1,23 @@
 define (require) ->
 
 	createInfoWindow = (map, data) ->
-			lastFM = data.lastFMEventData
-			deezer = data.deezerArtistData
+		lastFM = data.lastFMEventData
+		deezer = data.deezerArtistData
 
-			content =  "#{lastFM.artists.headliner}</br>"
-			content += "<a href='#{lastFM.url}' target='_blank'>#{lastFM.startDate} at #{lastFM.venue.name}</a><br/>"
-			content += "Now playing: <a href='#{deezer.link}' target='_blank'><i>#{deezer.title}</i> from <i>#{deezer.album.title}</i></a>"
+		console.log(data)
 
-			infoWindow = new google.maps.InfoWindow
-				position: data.location
-				map: map
-				content: content
+		venueImage = lastFM.venue.image[3]["#text"]
 
-			return infoWindow
+		content = ""
+		content += "<img height='120' src='#{deezer.artist.picture}'> <img height='120' src='#{venueImage}'><br/>"
+		content += "<strong>#{lastFM.artists.headliner}</strong> - playing at <strong>#{lastFM.venue.name}</strong> on <strong>#{lastFM.startDate}</strong><br/>"
+		content += "<br/>"
+		content += "<img height='64' src='#{deezer.album.cover}'><br/>"
+		content += "Now playing: <strong>#{deezer.title}</strong> from <strong>#{deezer.album.title}</strong><br/>"
+
+		infoWindow = new google.maps.InfoWindow
+			position: data.location
+			map: map
+			content: content
+
+		return infoWindow
