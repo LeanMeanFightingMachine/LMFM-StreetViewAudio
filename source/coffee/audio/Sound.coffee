@@ -25,12 +25,18 @@ define ->
 
 			@_setupNodes()
 
+		remove: () ->
+			@audio.pause()
+
+			@_disconnectNodes()
+
 		start: () ->
 			# start the sounds here
 			@audio.play() unless !@audio.paused
 
 		stop: () ->
 			# stop the sounds here
+			@audio.pause()
 
 		setDistanceAndHeading: (distance, heading) ->
 
@@ -71,8 +77,8 @@ define ->
 
 			@panner = AUDIO_CONTEXT.createPanner()
 			@panner.distanceModel = "exponential"
-			@panner.refDistance = 50
-			@panner.rolloffFactor = 1.2
+			@panner.refDistance = 20 # A reference distance for reducing volume as source move further from the listener. The default value is 1.
+			@panner.rolloffFactor = 1.2 # Describes how quickly the volume is reduced as source moves away from listener. The default value is 1.
 
 			@gain = AUDIO_CONTEXT.createGain()
 			@gain.channelCount = 1
@@ -86,3 +92,7 @@ define ->
 			#@filter.connect(@gain)
 			#@gain.connect(@panner)
 			@panner.connect(AUDIO_CONTEXT.destination)
+
+		_disconnectNodes: ->
+			@sourceNode.disconnect(@panner)
+			@panner.disconnect(AUDIO_CONTEXT.destination)

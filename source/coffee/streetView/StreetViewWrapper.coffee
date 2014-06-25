@@ -17,17 +17,36 @@ define ->
 
 		constructor: () ->
 			@enabled = false
-
 			@panorama = null
 
-		initialise: (@panorama) ->
+			@_isFirstPositionChange = true
+
+		initialise: (@el) ->
+			@panorama = new google.maps.StreetViewPanorama(@el)
+
 			@_addEventListeners()
 
 		setPosition: (latLng) ->
 			@panorama.setPosition(latLng)
 
+		close: ->
+			@_isFirstPositionChange = true
+
+			@panorama.setVisible(false)
+
+			@onClosed()
+
 		_addEventListeners: () ->
 			google.maps.event.addListener(@panorama, "position_changed", =>
+				if @_isFirstPositionChange
+					@_isFirstPositionChange = false
+
+					@el.classList.remove("is-hidden")
+
+					position = @panorama.getPosition()
+
+					@onStreetViewOpened(position)
+
 				@_update()
 			)
 
@@ -46,5 +65,3 @@ define ->
 				return
 
 			@onUpdate(position, pov.heading)
-
-			return

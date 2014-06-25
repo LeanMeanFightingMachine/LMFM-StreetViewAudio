@@ -4,7 +4,7 @@ define (require) ->
 
 	async = require("../vendor/async")
 	LastFM = require("api/LastFM")
-	Deezer = require("api/deezer")
+	Deezer = require("api/Deezer")
 	Map = require("map/Map")
 	StreetViewWrapper = require("streetView/StreetViewWrapper")
 	StreetViewMarker = require("streetView/StreetViewMarker")
@@ -17,8 +17,8 @@ define (require) ->
 
 	elements =
 		map: document.querySelector(".map")
-
-	sources = []
+		streetViewBackground: document.querySelector(".street-view-background")
+		streetView: document.querySelector(".street-view")
 
 	fixAngle = (angle) ->
 		if angle > 180
@@ -41,37 +41,68 @@ define (require) ->
 		constructor: ->
 			@map = new Map()
 			@streetView = new StreetViewWrapper()
+			@sources = []
 
-			@map.onStreetViewOpened = (latLng) =>
+			elements.streetViewBackground.addEventListener("click", (event) =>
+				if event.target == event.currentTarget
+					elements.streetView.classList.add("is-hidden")
+					elements.streetViewBackground.classList.add("is-hidden")
+
+					@streetView.close()
+			)
+
+			@map.onMoved = (latLng) =>
+				for i in [@sources.length - 1..0] by -1
+					source = @sources[i]
+
+					distance = google.maps.geometry.spherical.computeDistanceBetween(latLng, source.marker.position)
+
+					if distance > 6000
+						source.sound.remove()
+						source.marker.remove()
+
+						@sources.splice(i, 1)
+
 				@_loadEvents(latLng)
 
-			@streetView.onUpdate = @_update
+			@streetView.onStreetViewOpened = (latLng) =>
+				elements.streetView.classList.remove("is-hidden")
+				elements.streetViewBackground.classList.remove("is-hidden")
+
+				for source in @sources
+					source.sound.start()
+
+			@streetView.onClosed = =>
+				for source in @sources
+					source.sound.stop()
+
+			@streetView.onUpdate = @_updateSounds.bind(@)
 
 			onGoogleMapsReady( =>
 				@map.initialise(elements.map, 11)
 				@map.setCenter(mapStartPosition)
 
-				@streetView.initialise(@map.streetView)
+				@streetView.initialise(elements.streetView)
+				@map._map.setStreetView(@streetView.panorama)
 			)
 
-		_update: (position, heading) ->
+		_updateSounds: (position, heading) ->
 			#console.log position, heading
 
-			for source in sources
+			for source in @sources
 				headingToSource = google.maps.geometry.spherical.computeHeading(position, source.location)
 				normalizedHeading = fixAngle(heading - headingToSource)
 				distance = google.maps.geometry.spherical.computeDistanceBetween(position, source.location)
 				source.sound?.setDistanceAndHeading distance, normalizedHeading
-				source.sound?.start()
 
 		_dataLoaded: (data) ->
 			sources = data
 
 			for source in sources
-				source.sound = new Sound(source.audio)
-				source.marker = new StreetViewMarker(@map.streetView, source)
+				source.sound = new Sound(source.deezerArtistData.preview)
+				source.marker = new StreetViewMarker(@streetView.panorama, @map._map, source)
 
-				console.log source.venue.name, source
+			@sources.push.apply(@sources, sources)
 
 			@streetView.enabled = true
 
@@ -82,11 +113,20 @@ define (require) ->
 					events = []
 
 					LastFM.eventsByLatLng {lat:latLng.lat(), long:latLng.lng(), distance:2, limit: 5}, (eventData) ->
+						sourceDataByLatLng = {}
+
 						for event in eventData
+							latLng = new google.maps.LatLng(event.venue.location["geo:point"]["geo:lat"], event.venue.location["geo:point"]["geo:long"])
+
+							if sourceDataByLatLng[latLng]
+								continue
+
+							sourceDataByLatLng[latLng] = true
+
 							sourceData = {}
-							sourceData.venue = event.venue
-							sourceData.location = new google.maps.LatLng(event.venue.location["geo:point"]["geo:lat"], event.venue.location["geo:point"]["geo:long"])
-							sourceData.artist = event.artists.headliner
+							sourceData.lastFMEventData = event
+							sourceData.location = latLng
+
 							events.push sourceData
 
 						callback null, events
@@ -96,9 +136,9 @@ define (require) ->
 
 					for event, index in events
 						((i, event) ->
-							Deezer.searchArtist event.artist, (artistData) ->
+							Deezer.searchArtist event.lastFMEventData.artists.headliner, (artistData) ->
 								if artistData
-									event.audio = artistData.preview
+									event.deezerArtistData = artistData
 									eventsWithData.push event
 
 								callback(null, eventsWithData) if i is events.length-1

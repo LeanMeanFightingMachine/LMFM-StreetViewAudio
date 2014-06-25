@@ -19,3 +19,4 @@ node_modules/
 *.sublime-workspace
 *.js.map
 source/js
+release/

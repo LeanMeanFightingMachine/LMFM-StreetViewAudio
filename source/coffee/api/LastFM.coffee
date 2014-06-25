@@ -7,7 +7,6 @@ define () ->
 		radioByArtist: (artist, callback) ->
 			request = requestURL('radio.search',{name:artist})
 			@_get request, (data) ->
-				console.log data
 				callback(data.events.event)
 
 		eventsByLatLng: (params, callback) ->
@@ -19,8 +18,6 @@ define () ->
 
 					callback([])
 				else
-					console.log("events data", data)
-
 					callback(data.events.event)
 
 		_get: (url, callback) ->
