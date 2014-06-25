@@ -16,6 +16,10 @@ define (require) ->
 		lat: 50.82104
 		lng: -0.1356339
 
+	config =
+		distance: 12 # in kilometres
+		lastFMResultsMax: 20
+
 	elements =
 		map: document.querySelector(".map")
 		streetViewBackground: document.querySelector(".street-view-background")
@@ -61,7 +65,7 @@ define (require) ->
 
 					distance = google.maps.geometry.spherical.computeDistanceBetween(latLng, source.location)
 
-					if distance > 6000
+					if distance > config.distance * 1000
 						source.infoWindow.close()
 
 						@domElementsOverlay.remove(source.overlayElement)
@@ -124,7 +128,7 @@ define (require) ->
 				(callback) ->
 					events = []
 
-					LastFM.eventsByLatLng {lat:latLng.lat(), long:latLng.lng(), distance:2, limit: 5}, (eventData) ->
+					LastFM.eventsByLatLng {lat:latLng.lat(), long:latLng.lng(), distance:config.distance, limit: config.lastFMResultsMax}, (eventData) ->
 						sourceDataByLatLng = {}
 
 						for event in eventData
