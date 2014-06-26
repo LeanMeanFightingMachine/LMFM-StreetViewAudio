@@ -1,7 +1,6 @@
 define (require) ->
 
 	onGoogleMapsReady = require("util/onGoogleMapsReady")
-
 	async = require("../vendor/async")
 	LastFM = require("api/LastFM")
 	Deezer = require("api/Deezer")
@@ -11,14 +10,15 @@ define (require) ->
 	createInfoWindow = require("streetView/createInfoWindow")
 	Sound = require("audio/Sound")
 
-	# start map at Brighton
+	# start map at Camden Town
 	mapStartPosition =
-		lat: 50.82104
-		lng: -0.1356339
+		lat: 51.539011
+		lng: -0.142555
 
 	config =
-		distance: 12 # in kilometres
+		distance: 6 # in kilometres
 		lastFMResultsMax: 20
+		mapZoom: 15
 
 	elements =
 		map: document.querySelector(".map")
@@ -32,14 +32,6 @@ define (require) ->
 			return angle + 360
 		else
 			return angle
-
-	###
-		get lastfm radio streams for each artists events
-		add params to new Sound constructor
-			lat long
-			radio stream url
-		when street view updates update each source with streetview position/heading etc
-	###
 
 	class App
 
@@ -91,7 +83,7 @@ define (require) ->
 			@streetView.onUpdate = @_updateSounds.bind(@)
 
 			onGoogleMapsReady( =>
-				@map.initialise(elements.map, 11)
+				@map.initialise(elements.map, config.mapZoom)
 				@map.setCenter(mapStartPosition)
 
 				@domElementsOverlay = new (getDOMElementsOverlayClass())("last-fm-markers")
