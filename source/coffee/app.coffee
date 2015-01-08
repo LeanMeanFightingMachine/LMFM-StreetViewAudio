@@ -17,7 +17,7 @@ define (require) ->
 
 	config =
 		distance: 6 # in kilometres
-		lastFMResultsMax: 20
+		lastFMResultsMax: 15
 		mapZoom: 15
 
 	elements =

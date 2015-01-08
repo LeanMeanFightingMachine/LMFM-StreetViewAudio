@@ -10,12 +10,15 @@ define () ->
 			#request = @_requestURL('search/artist',{q:artist})
 
 			$.getJSON(request, (data) ->
-				for artistObj in data.data
-					if artistObj.artist.name.toUpperCase() is artist.toUpperCase()
-						callback(artistObj)
-						return
-					else
-						callback(false)
+				if data.data?
+					for artistObj in data.data
+						if artistObj.artist.name.toUpperCase() is artist.toUpperCase()
+							callback(artistObj)
+							return
+						else
+							callback(false)
+				else
+					console.log 'Deezer Error:', data
 			)
 
 		_get: (url, callback) ->

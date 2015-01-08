@@ -36,7 +36,10 @@ define ->
 					@element.appendChild(element)
 
 				remove: (element) ->
-					@element.removeChild(element)
+					try
+						@element.removeChild(element)
+					catch e
+						console.log 'Error Removing Overlay Element', e
 
 				show: ->
 					@element.classList.remove("is-hidden")
